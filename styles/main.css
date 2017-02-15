@@ -1,7 +1,7 @@
 body {
 	overflow-x: hidden;
   overflow-y: auto;
-  max-height: 350px;
+  max-height: 550px;
 	margin: 0;
 	padding: 0;
 	color: #333;
@@ -9,7 +9,7 @@ body {
 }
 
 body.popup {
-	width: 300px;
+	width: 400px;
 }
 
 #notifications {
@@ -81,4 +81,44 @@ color:#369;
   content: "";
   display: table;
   clear: both;
+}
+.wrapper {
+  background: white;
+  margin: auto;
+  padding: 1em;
+  width: 98%;
+}
+h1 {
+  text-align: center;
+}
+ul.tabs {
+  list-style-type: none;
+  margin: 0;
+  padding: 0;
+  width: 100%;
+}
+ul.tabs li {
+  border: gray solid 1px;
+  border-bottom: none;
+  float: left;
+  margin: 0 .25em 0 0;
+  padding: .25em .5em;
+}
+ul.tabs li a {
+  color: gray;
+  font-weight: bold;
+  text-decoration: none;
+}
+ul.tabs li.active {
+  background: black;
+}
+ul.tabs li.active a {
+  color: white;
+}
+.clr {
+  clear: both;
+}
+article {
+  border-top: gray solid 1px;
+  padding: 0 1em;
 }

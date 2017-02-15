@@ -89,7 +89,7 @@ subs.send();
 
 function processAlerts(e) {
     if (subs.readyState == 4) {
-        var response = JSON.parse(subs.responseText);
+        var response = JSON.parse(subs.responseText);        
         localStorage.setItem('totalAlertsCount', response["item_count"]);
         if (response["item_count"] > 0){
         var alerts = response['notifications'];
@@ -101,20 +101,20 @@ function processAlerts(e) {
         }               
         jsonAlerts = jsonAlerts.substr(0, jsonAlerts.length-2);
         jsonAlerts += "}";
-        var alertsCount = JSON.parse(jsonAlerts);        
+        var alertsCount = JSON.parse(jsonAlerts);               
         var prepareList = [];
-        if(typeof alertsCount != "undefined" &&  Object.keys(alertsCount).length > 0) {            
+        var new_alert_count = 0;
+        if(typeof alertsCount != "undefined" &&  Object.keys(alertsCount).length > 0 && localStorage.getItem('showDesktopNotifications') === "true") {            
             Object.keys(alertsCount).forEach(function(k) {
-                var new_alert_count = alertsCount[k] - localStorage.getItem('count_'+k);                
-                if(new_alert_count > 0) {
-                    prepareList.push({
+                new_alert_count = alertsCount[k] - localStorage.getItem('count_'+k);                               
+                                    prepareList.push({
                                     title: alertTypes[k],
                                     message: alertsCount[k] + "/" + new_alert_count
                             });
-                 } 
+                  
                  localStorage.setItem('count_'+k, alertsCount[k]);               
             });
-                if (localStorage.getItem('showDesktopNotifications') === "true") {
+        if(new_alert_count > 1) {               
             var desktopNotificationTemplate = {
                 type: 'list',
                 title: "Новые уведомления, %username%!",
@@ -122,9 +122,20 @@ function processAlerts(e) {
                 iconUrl: 'images/128.png',
                 items: prepareList
             }
-                chrome.notifications.create('alerts', desktopNotificationTemplate);
+            chrome.notifications.create('alerts', desktopNotificationTemplate);
+        } else if (new_alert_count == 1) {
+            var desktopNotificationTemplate = {
+                type: 'basic',
+                title: "Новые уведомления, %username%!",
+                message: prepareList[0].title + ": " + prepareList[0].message,
+                iconUrl: 'images/128.png'
+                
+        }
+        chrome.notifications.create('alerts', desktopNotificationTemplate);
+    }
+                
             
-            }            
+                     
         }
         }
         drawBadge();
@@ -135,8 +146,8 @@ function filterAlerts(alerts, type){
     var result = alerts.filter(function( obj ) {
         return obj.type == type;
         });
-    localStorage.setItem(type, JSON.stringify(result));
-    if (localStorage.getItem('count_'+type) == null){
+    localStorage.setItem(type, JSON.stringify(result));    
+    if (localStorage.getItem('count_'+type) == null || result.length == 0){
             localStorage.setItem('count_'+type, 0);            
         }
     return result.length;       
