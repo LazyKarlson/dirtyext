@@ -5,7 +5,18 @@ function getNotificationHTML(model) {
 			'<p>' + model.body + '</p>' +			
 			'</div><div inbox-id="' + model.id + '" class="inbox">Отметить как прочитанные</div><hr />';
 }
-
+var alertTypes = {"comment_answer":"Ответы",
+"mention":"Упоминания",
+"new_comment":"Новые комментарии",
+"post_became_gold":"Золотой пост",
+"permission_grant":"Получите лопату",
+"given_gold":"Получите золото",
+"ban":"Вас забанили",
+"unban":"Вас разбанили",
+"president_elected":"Выборы закончились",
+"election_voting_start":"Голосование началось",
+"election_nomination_start":"Выдвижение началось",
+"post_from_subscribed_user":"Новый пост"};
 // Display the notifications
 function displayNotifications(notifications) {
 
@@ -39,6 +50,37 @@ function displayNotifications(notifications) {
 
 	$("#notifications").html(notificationsHTML);
 }
+function displayAlerts(alerts) {
+
+	var alertsHTML = '';
+
+	// Loop through each notification
+
+    var length = alerts.length;    
+    if(length == 0) {        
+        alertsHTML = '<div class="no-alerts"><h4>Здесь пусто</h4></div>';
+    } else {        
+        for(var i = 0; i < length; i++ ) {
+            
+            var item = alerts[i];            
+            var viewModel = {
+                id: '',
+                title: '',
+                body: '',
+                url: ''
+            };
+                
+                viewModel.id = item.id;
+                viewModel.title = '<strong>' + T('new_comments.uploaded', { comments: item.unread_comments_count}) + '</strong>';
+                viewModel.url = "https://dirty.ru/my/inbox/"+ item.id + "/" ;
+                viewModel.body = item.data.text.replace(/<\/?[^>]+(>|$)/g, "");                              
+                alertsHTML += getAlertsHTML(viewModel);
+            
+        }
+    }
+
+	$("#alerts").html(alertsHTML);
+}
 
 // Will force a refresh of notifications and will then display them
 function updateAndDisplayNotifications(callback) {
@@ -69,17 +111,36 @@ function truncate(text,length){
 	return text;
 }
 
+function fetchAlerts(){
+		var jsonAlerts = [];
+        for (var key in alertTypes) {
+        	if (localStorage.getItem('count_'+key) != 0){
+        		jsonAlerts += localStorage.getItem(key);
+        	}              
+        }               
+        if (jsonAlerts.length > 0){
+        var fetchedAlerts = JSON.parse(jsonAlerts);        
+    } else {
+    	var fetchedAlerts = 0;    	
+    }
+    return fetchedAlerts;
+}
 // Add logic after dom is ready
 
 $(document).ready(function() {
 
 	var notifications = localStorage.getItem('inboxcomments');
-
+	var alerts = fetchAlerts();
 	if(notifications === null) {
 		updateAndDisplayNotifications();
 	} else {
 		notifications = JSON.parse(notifications);
 		displayNotifications(notifications);
+	}
+	if(alerts != 0) {
+		DisplayAlerts(alerts);
+	} else {
+		updateAndDisplayAlerts();
 	}
 
 	$("body").on("click", "[data-read-url]", null, function(event) {
