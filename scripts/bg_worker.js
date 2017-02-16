@@ -57,6 +57,7 @@ var alertTypes = {"comment_answer":"Ответы",
 "president_elected":"Выборы закончились",
 "election_voting_start":"Голосование началось",
 "election_nomination_start":"Выдвижение началось",
+"comment_answer":"Ответы на комментарии",
 "post_from_subscribed_user":"Новый пост"};
 
 function getInboxes(u_id, s_id){
