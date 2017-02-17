@@ -1,12 +1,12 @@
 <html>
 	<head>
+   <link rel="stylesheet" href="styles/font-awesome.min.css" type="text/css" />
+    <link rel="stylesheet" href="styles/main.css" type="text/css" />
 		<script src="scripts/jquery-1.11.0.min.js"></script>
         <script src="scripts/moment-2.6.0.min.js"></script>
         <script src="scripts/T.min.js" type="text/javascript"></script>
  		<script src="scripts/lang.ru.js" type="text/javascript"></script>
-		<script src="scripts/fetch.js"></script>
-        <link rel="stylesheet" href="styles/font-awesome.min.css" type="text/css" />
-		<link rel="stylesheet" href="styles/main.css" type="text/css" />
+		<script src="scripts/fetch.js"></script>       
 	</head>
 	<body class="popup">		
     <div id="control" class="group">
@@ -16,28 +16,30 @@
   <section class="wrapper">
   <h1>Здесь всё твое, %username%</h1>
   <ul class="tabs">
-    <li><a href="#tab1">Инбоксы</a></li>
-    <li><a href="#tab2">Мои вещи</a></li>
-    <li><a href="#tab3">Уведомления</a></li>
+    <li><a href="#tab1"><i class="fa fa-comment"></i> Инбоксы</a></li>
+    <li><a href="#tab2"><i class="fa fa fa-file-text-o"></i> Мои вещи</a></li>
+    <li><a href="#tab3"><i class="fa fa-bell-o"></i> События</a></li>
   </ul>
   <div class="clr"></div>
   <section class="block">
   	<article id="tab1">
 	<div id="notifications">
 		<div class="no-notifications">
-			<h4>Здесь пусто</h4>
+			<h4>Здесь пусто, нет ничего вообще.</h4>
 		</div>
 	</div>
 	</article>	
     <article id="tab2">
+    <div id="mythings">
       <div class="no-things">
-			<h4>Здесь пусто</h4>
+			<h4>Здесь пусто, нет ничего вообще.</h4>
+      </div>
 		</div>
     </article>
     <article id="tab3">
-     <div id="alerts">
+     <div id="myalerts">
      <div class="no-alerts">
-			<h4>Здесь пусто</h4>
+			<h4>Здесь пусто, нет ничего вообще.</h4>
 		</div>
     </div>
     </article>

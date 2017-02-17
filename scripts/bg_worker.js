@@ -23,6 +23,13 @@ var actions = {
         });
     },
 
+    alertsMarkAsRead: function(request, callback) {    
+    chrome.cookies.getAll({url:"http://dirty.ru/"}, function(cookies) { 
+    alertsMarkRead(cookies[0].value, cookies[1].value, request.url, request.type);
+       
+        });
+    },
+
     getAlerts: function(request, callback) {    
     chrome.cookies.getAll({url:"http://dirty.ru/"}, function(cookies) { 
     getMyAlerts(cookies[0].value, cookies[1].value);
@@ -78,6 +85,24 @@ req.onreadystatechange = getInboxes(u_id, s_id);
 req.send();
 }
 
+function alertsMarkRead(u_id, s_id, url, type){
+if (type != 'all'){
+localStorage.setItem('count'+type, 0);
+localStorage.removeItem(type);
+} else {
+    Object.keys(alertsCount).forEach(function(k) {
+                localStorage.setItem('count_'+k, 0);
+                localStorage.setItem(k, '[]');               
+            });
+}
+var alertUrl = url;    
+req.open('POST', alertUrl, true);
+req.setRequestHeader('X-Futuware-UID', u_id);
+req.setRequestHeader('X-Futuware-SID', s_id);
+req.onreadystatechange = getMyAlerts(u_id, s_id);
+req.send();
+}
+
 function getMyAlerts(u_id, s_id){
 var alertsUrl = "https://dirty.ru/api/my/notifications/unread/"; 
 //var inboxUrl = "https://dirty.ru/api/my/notifications/mark_read/"; 
@@ -118,7 +143,7 @@ function processAlerts(e) {
         if(new_alert_count > 1) {               
             var desktopNotificationTemplate = {
                 type: 'list',
-                title: "Новые уведомления, %username%!",
+                title: "Новые события, %username%!",
                 message: "",
                 iconUrl: 'images/128.png',
                 items: prepareList
@@ -127,7 +152,7 @@ function processAlerts(e) {
         } else if (new_alert_count == 1) {
             var desktopNotificationTemplate = {
                 type: 'basic',
-                title: "Новые уведомления, %username%!",
+                title: "Новые события, %username%!",
                 message: prepareList[0].title + ": " + prepareList[0].message,
                 iconUrl: 'images/128.png'
                 

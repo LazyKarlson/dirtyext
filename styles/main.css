@@ -1,11 +1,14 @@
 body {
 	overflow-x: hidden;
   overflow-y: auto;
-  max-height: 650px;
+  max-height: 850px;
 	margin: 0;
 	padding: 0;
 	color: #333;
-	font-family: Helvetica, Tahoma, Verdana, sans-serif;
+  font-size: .8em;
+  line-height: 1.5;
+	font-family: 'PT Sans Caption',Verdana,sans-serif;
+  background-color: #f4f4f2;
 }
 
 body.popup {
@@ -13,7 +16,7 @@ body.popup {
 }
 
 #notifications {
-  font-size: 14px;
+  font-size: 12px;
 
 }
 

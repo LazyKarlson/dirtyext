@@ -3,12 +3,12 @@ function getNotificationHTML(model) {
 	return 	'<div data-read-url="' + model.url + '" data-id="' + model.id + '" class="notification group">' +
 			'<h4>' + model.title + '</h4>' +
 			'<p>' + model.body + '</p>' +			
-			'</div><div inbox-id="' + model.id + '" class="inbox">Отметить как прочитанные</div><hr />';
+			'</div><button type="button" inbox-id="' + model.id + '" class="inbox">Отметить как прочитанное</button><hr />';
 }
 function getAlertsHTML(model) {
     return  '<div alert-read-url="' + model.url + '" class="notification group">' +
             '<p>' + model.body + '</p>' +           
-            '</div><div alert-id="' + model.markread + '" class="inbox">Отметить как прочитанные</div><hr />';
+            '</div><button type="button" alert-type="' + model.id + '" alert-id="' + model.markread + '" class="alert">Отметить как прочитанное</button><hr />';
 }
 var alertTypes = {"comment_answer":"Ответы",
 "mention":"Упоминания",
@@ -23,14 +23,18 @@ var alertTypes = {"comment_answer":"Ответы",
 "election_nomination_start":"Выдвижение началось",
 "comment_answer":"Ответы на комментарии",
 "post_from_subscribed_user":"Новый пост"};
-// 
+ 
 function displayNotifications(notifications) {
 
 	var notificationsHTML = '';
-
-    var length = notifications.length;    
+if (typeof notifications === 'undefined'){
+     var length = 0; 
+    } else {
+    var length = notifications.length; 
+    } 
+   //var length = notifications.length;    
     if(length == 0) {        
-        notificationsHTML = '<div class="no-notifications"><h4>Здесь пусто</h4></div>';
+        notificationsHTML = '<div class="no-notifications"><h4>Здесь пусто, нет ничего вообще.</h4></div>';
     } else {        
         for(var i = 0; i < length; i++ ) {            
             var item = notifications[i];            
@@ -52,13 +56,18 @@ function displayNotifications(notifications) {
 
 	$("#notifications").html(notificationsHTML);
 }
-function displayAlerts(alerts) {
 
+function displayAlerts(alerts) {    
 	var alertsHTML = '';
-
-    var length = alerts.length;   
+    var mythingsHTML = '';
+    if (typeof alerts === 'undefined'){
+    var length = 0;
+    } else {
+    var length = alerts.length;
+    }   
     if(length == 0) {        
-        alertsHTML = '<div class="no-alerts"><h4>Здесь пусто</h4></div>';
+        alertsHTML = '<div class="no-alerts"><h4>Здесь пусто, нет ничего вообще.</h4></div>';
+        mythingsHTML = '<div class="no-alerts"><h4>Здесь пусто, нет ничего вообще.</h4></div>';
     } else {        
         for(var i = 0; i < length; i++ ) {            
             var item = alerts[i];                       
@@ -71,6 +80,7 @@ function displayAlerts(alerts) {
             switch(item.type){
 
                 case 'ban':
+                viewModel.id = item.type;
                 viewModel.url = item.data.domain.url;
                 viewModel.body = 'Так случилось, что вас забанили в сообществе <b>' + item.data.domain.title + '</b>';
                 viewModel.markread = item._links[0].href;                             
@@ -78,6 +88,7 @@ function displayAlerts(alerts) {
                 break;
 
                 case 'unban':
+                viewModel.id = item.type;
                 viewModel.url = item.data.domain.url;
                 viewModel.body = 'Хорошие новости – вас разбанили в сообществе <b>' + item.data.domain.title + '</b>';
                 viewModel.markread = item._links[0].href;                             
@@ -85,6 +96,7 @@ function displayAlerts(alerts) {
                 break;
 
                 case 'permission_grant':
+                viewModel.id = item.type;
                 viewModel.url = item.data.domain.url;
                 viewModel.body = 'Вы стали ' + item.data.permission + ' сообщества<b>' + item.data.domain.title + '!</b> Будьте благоразумны и удачи!';
                 viewModel.markread = item._links[0].href;                             
@@ -92,6 +104,7 @@ function displayAlerts(alerts) {
                 break;
 
                 case 'election_nomination_start':
+                viewModel.id = item.type;
                 viewModel.url = item.data.domain.url;
                 viewModel.body = 'В сообществе<b>' + item.data.domain.title + '</b> начались выборы';
                 viewModel.markread = item._links[0].href;                             
@@ -99,6 +112,7 @@ function displayAlerts(alerts) {
                 break;
 
                 case 'election_voting_start':
+                viewModel.id = item.type;
                 viewModel.url = item.data.domain.url;
                 viewModel.body = 'В сообществе<b>' + item.data.domain.title + '</b> началось голосование на выборах президента.';
                 viewModel.markread = item._links[0].href;                             
@@ -106,6 +120,7 @@ function displayAlerts(alerts) {
                 break;
 
                 case 'comment_answer':
+                viewModel.id = item.type;
                 viewModel.url = item.data.comment.domain.url+'/comments/'+item.data.comment.post.id+'/#new';
                 viewModel.body = item.data.comment.user.login +' ответил на  комментарий в посте ' + item.data.comment.post.title +
                 ' ' + item.data.post.rating + '<br />'+item.data.comment.body;
@@ -113,7 +128,17 @@ function displayAlerts(alerts) {
                 alertsHTML += getAlertsHTML(viewModel);
                 break;
 
+                case 'new_comment':
+                viewModel.id = item.type;
+                viewModel.url = item.data.post._links[1].href;
+                viewModel.body = 'В посте '+ item.data.post.title  + T('new_comments.added', { comments: item.data.post.unread_comments_count});
+                ' ' + item.data.post.rating + '<br />'+item.data.comment.body;
+                viewModel.markread = item._links[0].href;                             
+                mythingsHTML += getAlertsHTML(viewModel);
+                break;
+
                 case 'post_from_subscribed_user':
+                viewModel.id = item.type;
                 if (item.data.post.created == 0) { 
                     viewModel.url = '';
                     var metka = 'Распубликован';
@@ -127,6 +152,7 @@ function displayAlerts(alerts) {
                 break;
 
                 default:
+                viewModel.id = item.type;
                 viewModel.url = '';
                 viewModel.body = item.type;
                 viewModel.markread = '';                             
@@ -135,7 +161,10 @@ function displayAlerts(alerts) {
                            
         }
     }
-   $("#alerts").html(alertsHTML);   
+   $("#myalerts").html(alertsHTML + '<button type="button" alert-type="all" alert-id="https://dirty.ru/api/my/notifications/mark_read/" class="alert">Отметить всё как прочитанное</button><hr />');
+   if (mythingsHTML.length >0 ){
+   $("#mythings").html(mythingsHTML);  
+   } else { $("#mythings").html('<div class="no-alerts"><h4>Здесь пусто, нет ничего вообще.</h4></div>')} 
 }
 
 function updateAndDisplayNotifications(callback) {
@@ -153,8 +182,15 @@ function updateAndDisplayAlerts(callback) {
 }
 
 function markAsRead(i_id, callback) {
-    chrome.runtime.sendMessage({action : 'markAsRead', inbox: i_id}, function(response) {
+    chrome.runtime.sendMessage({action : 'markAsRead', inbox: i_id }, function(response) {
         displayNotifications(response);
+        if(callback) callback(response);
+    });
+}
+
+function alertMarkAsRead(url, type, callback) {
+    chrome.runtime.sendMessage({action : 'alertsMarkAsRead', alert: url, alert_type: type}, function(response) {
+        displayAlerts(response);
         if(callback) callback(response);
     });
 }
@@ -179,8 +215,9 @@ function fetchAlerts(){
         		jsonAlerts += localStorage.getItem(key);
         	}            
         }       
-        var replaced = jsonAlerts.replace(/\]\[/g,",");        
-        if (replaced.length > 0){
+            
+        if (jsonAlerts.length > 0){
+        var replaced = jsonAlerts.replace(/\]\[/g,",");
         var fetchedAlerts = JSON.parse(replaced);
         } else {
     	var fetchedAlerts = 0;    	
@@ -248,6 +285,13 @@ $(document).ready(function() {
         markAsRead(inbox_id);
     });
 
+    $("body").on("click", "[alert-id]", null, function(event) {
+        var alert = $(event.target).closest('.alert');    
+        var alert_url = alert[0].getAttribute('alert-id');
+        var alert_type = alert[0].getAttribute('alert-type');
+        alertMarkAsRead(alert_url, alert_type);
+    });
+
 	$(".openOptions").click(function() {
 		chrome.tabs.create({url: 'options.html'});
 	});
@@ -257,8 +301,7 @@ $(document).ready(function() {
     $('.forceRefresh').addClass('fa-spin');
 	setTimeout(function() {
         $('.forceRefresh').removeClass('fa-spin');
-    }, 1000)
-	
+    }, 1000)	
     updateAndDisplayNotifications(function() {
         setTimeout(updateAndDisplayNotifications);
     });    
