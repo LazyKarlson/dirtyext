@@ -135,7 +135,7 @@ function displayAlerts(alerts) {
                 viewModel.id = item.type;
                 viewModel.url = item.data.post._links[1].href;
                 viewModel.body = 'В посте '+ item.data.post.title  + T('new_comments.added', { comments: item.data.post.unread_comments_count});
-                ' ' + item.data.post.rating + '<br />'+item.data.comment.body;
+                ' ' + item.data.post.rating;
                 viewModel.markread = item._links[0].href;                             
                 mythingsHTML += getAlertsHTML(viewModel);
                 break;
