@@ -219,13 +219,16 @@ function fetchAlerts(){
 		var jsonAlerts = [];        
         for (var key in alertTypes) {
         	//if (localStorage.getItem('count_'+key) != 0 && key != "new_comment"){
-            if (localStorage.getItem('count_'+key) != 0){
+            if (localStorage.getItem('count_'+key) === null){
+                jsonAlerts = [];
+            }    
+            else if (localStorage.getItem('count_'+key) != 0){
         		jsonAlerts += localStorage.getItem(key);
         	}            
         }       
             
         if (jsonAlerts.length > 0){
-        var replaced = jsonAlerts.replace(/\]\[/g,",");
+        var replaced = jsonAlerts.replace(/\]\[/g,",");        
         var fetchedAlerts = JSON.parse(replaced);
         } else {
     	var fetchedAlerts = 0;    	
