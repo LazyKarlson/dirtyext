@@ -1,0 +1,126 @@
+body {
+	overflow-x: hidden;
+  overflow-y: auto;
+  max-height: 850px;
+	margin: 0;
+	padding: 0;
+	color: #333;
+  font-size: .8em;
+  line-height: 1.5;
+	font-family: 'PT Sans Caption',Verdana,sans-serif;
+  background-color: #F5F5F5;
+}
+
+body.popup {
+	width: 400px;
+}
+
+#notifications {
+  font-size: 12px;
+}
+
+
+.date {
+	font-size: 10px;
+	 float: right;
+color:#A4A4A4
+}
+
+.notification {
+	border-bottom: 1px solid #FFF;
+	padding: 5px;
+	background: #F5F5F5;
+
+}
+
+.no-notifications {
+  padding: 5px;
+}
+.notification strong{
+color:#369;
+
+}
+.notification:hover {
+	background: #FFF;
+	cursor: pointer;
+}
+
+.notification h4, .no-notifications  h4 {
+	margin: 0px;
+	font-weight: normal;
+}
+
+.no-notifications h4 {
+  text-align: center;
+}
+
+#control {
+  font-size: 20px;
+}
+
+#control {
+  background-color: #D3D3D3;
+  padding: 5px;
+  line-height: 26px;
+  color: #556e8c;
+}
+
+#control:after {
+  content: " ";
+  clear: both;
+}
+
+#control .forceRefresh {
+  float: right;
+}
+
+#control i {
+  cursor: pointer;
+
+}
+
+
+.group:after {
+  content: "";
+  display: table;
+  clear: both;
+}
+.wrapper {
+  background: #F5F5F5;  
+  width: 100%;
+}
+h1 {
+  text-align: center;
+}
+ul.tabs {
+  list-style-type: none;
+  margin: 0;
+  padding: 0;
+  width: 420px;
+}
+ul.tabs li {  
+  border: none;
+  float: left;
+  margin: 0 0 0 0;
+  padding: .25em .5em;
+  text-align: center;
+  width:29%;
+}
+ul.tabs li a {
+  color: gray;
+  font-weight: bold;
+  text-decoration: none;
+}
+ul.tabs li.active {
+  background: #e6e6e6;
+}
+ul.tabs li.active a {
+  color: #556e8c;
+}
+.clr {
+  clear: both;
+}
+article {
+  border-top: gray solid 1px;
+  padding: 0 1em;
+}
