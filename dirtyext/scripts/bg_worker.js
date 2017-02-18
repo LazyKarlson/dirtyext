@@ -3,12 +3,19 @@ var uid;
 var updateNotificationsInterval = null;
 var lastInboxCommentsCount = 0;
 var xhr = new XMLHttpRequest();
+var usr = new XMLHttpRequest();
 var req = new XMLHttpRequest();
 var subs = new XMLHttpRequest();
 var alertsCount;
 T.lang('ru');
 
 var actions = {
+    getUser: function(request, callback) {
+    chrome.cookies.getAll({url:"http://dirty.ru/"}, function(cookies) { 
+    getUserData(cookies[0].value, cookies[1].value);    
+        });
+    },
+
 	updateInboxComments: function(request, callback) {
 	chrome.cookies.getAll({url:"http://dirty.ru/"}, function(cookies) {	
 	getInboxes(cookies[0].value, cookies[1].value);	   
@@ -74,13 +81,111 @@ xhr.onreadystatechange = processInboxes;
 xhr.send();
 }
 
-function markRead(u_id, s_id, i_id){
+function getUserData(u_id, s_id){
+localStorage.setItem('upVotes', 0);
+localStorage.setItem('downVotes', 0); 
+usr.open('GET', "https://dirty.ru/api/my/", true);
+usr.setRequestHeader('X-Futuware-UID', u_id);
+usr.setRequestHeader('X-Futuware-SID', s_id);
+usr.onreadystatechange = function()
+    {
+        if (usr.readyState == 4 && usr.status == 200)
+        {
+            var response = JSON.parse(usr.responseText);
+            localStorage.setItem('login', response.login);
+            countUserPosts(u_id, s_id)   
+        }
+    }; 
+usr.send();
+}
+
+function countUserPosts(u_id, s_id){
+    var href = "https://dirty.ru/api/users/" + localStorage.getItem('login') + "/posts/";
+    usr.open('GET', href, true);
+    usr.setRequestHeader('X-Futuware-UID', u_id);
+    usr.setRequestHeader('X-Futuware-SID', s_id);            
+    usr.onreadystatechange = function()
+    {
+        if (usr.readyState == 4 && usr.status == 200)
+        {
+            var response = JSON.parse(usr.responseText);                        
+            localStorage.setItem('user_posts', response.item_count);
+            countUserComments(u_id, s_id)
+        } 
+                    
+    }; 
+    usr.send();
+}
+function countUserComments(u_id, s_id){
+    var href = "https://dirty.ru/api/users/" + localStorage.getItem('login') + "/comments/";
+    usr.open('GET', href, true);
+    usr.setRequestHeader('X-Futuware-UID', u_id);
+    usr.setRequestHeader('X-Futuware-SID', s_id);
+    usr.onreadystatechange = function()
+    {
+        if (usr.readyState == 4 && usr.status == 200)
+        {
+            var response = JSON.parse(usr.responseText);                        
+            localStorage.setItem('user_comments', response.item_count); 
+            countUserKarma(u_id, s_id, 1)                              
+        } 
+        
+    }; 
+    usr.send();
+}
+
+function countUserKarma(u_id, s_id, i){       
+    countVotes(u_id, s_id, i);    
+}
+
+function countVotes(u_id, s_id, i){    
+    var href = "https://dirty.ru/api/users/" + localStorage.getItem('login') + "/votes/?page="+i;
+    usr.open('GET', href, true);
+    usr.setRequestHeader('X-Futuware-UID', u_id);
+    usr.setRequestHeader('X-Futuware-SID', s_id);
+    usr.onreadystatechange = function()
+    {
+        if (usr.readyState == 4 && usr.status == 200)
+        {
+            var response = JSON.parse(usr.responseText);
+            if (response.downvotes === null && response.upvotes === null){
+                var karma = parseInt(localStorage.getItem('upVotes')) + parseInt(localStorage.getItem('downVotes'));
+                localStorage.setItem('karma', karma);
+            } else {
+            var downvotes = response.downvotes;
+            var upvotes = response.upvotes;
+            var upTotal = 0;
+            var downTotal = 0;
+            if (response.upvotes !== null){
+            for(var i = 0, len = upvotes.length; i < len; i++) {
+                upTotal += upvotes[i].vote;
+            }
+        }
+            if (response.downvotes !== null){
+            for(var i = 0, len = downvotes.length; i < len; i++) {
+                downTotal += downvotes[i].vote;
+            }
+        }
+            upTotal = upTotal + parseInt(localStorage.getItem('upVotes'));
+            downTotal = downTotal + parseInt(localStorage.getItem('downVotes'));            
+            localStorage.setItem('upVotes', upTotal);
+            localStorage.setItem('downVotes', downTotal);
+            var i = response.page + 1;
+            countUserKarma(u_id, s_id, i)
+             }                                               
+          }
+        }; 
+        usr.send();
+}
+
+function markRead(u_id, s_id, i_id){       
 localStorage.removeItem('inbox'+i_id);
 var inboxUrl = "https://dirty.ru/api/inbox/" + i_id + "/view/";    
 req.open('POST', inboxUrl, true);
 req.setRequestHeader('X-Futuware-UID', u_id);
 req.setRequestHeader('X-Futuware-SID', s_id);
-req.onreadystatechange = getInboxes(u_id, s_id);
+req.onreadystatechange = actions.updateInboxComments();
+//req.onreadystatechange = getInboxes(u_id, s_id);
 req.send();
 }
 
@@ -88,17 +193,17 @@ function alertsMarkRead(u_id, s_id, url, type){
 var alertUrl = url;
 if (type != 'all'){
 localStorage.setItem('count'+type, 0);
-localStorage.removeItem(type);
+localStorage.setItem(type, []);
 } else {
     for (var key in alertTypes) {        
                 localStorage.setItem('count_'+key, 0);
-                localStorage.removeItem(key);               
+                localStorage.setItem(key,[]);               
             };
 }    
 req.open('POST', alertUrl, true);
 req.setRequestHeader('X-Futuware-UID', u_id);
 req.setRequestHeader('X-Futuware-SID', s_id);
-req.onreadystatechange = getMyAlerts(u_id, s_id);
+req.onreadystatechange = actions.getAlerts();
 req.send();
 }
 
@@ -258,6 +363,7 @@ function drawBadge(){
 actions.initNotificationsInterval(); 
 actions.updateInboxComments();
 actions.getAlerts();
+actions.getUser();
 
 function onRequest(request, sender, callback) {    
 	if(actions.hasOwnProperty(request.action)) {

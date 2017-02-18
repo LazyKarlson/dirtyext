@@ -1,5 +1,5 @@
 body {
-	overflow-x: hidden;
+	overflow-x: auto;
   overflow-y: auto;
   max-height: 850px;
 	margin: 0;
@@ -9,17 +9,36 @@ body {
   line-height: 1.5;
 	font-family: 'PT Sans Caption',Verdana,sans-serif;
   background-color: #F5F5F5;
+  background-image: url("/images/bg.jpg");
+  background-repeat: no-repeat;
+  background-attachment: fixed;
+  background-position: center;
 }
 
 body.popup {
 	width: 400px;
 }
 
-#notifications {
-  font-size: 12px;
+.box-header {
+    border-bottom: 1px solid #aac7ef;
+    padding-bottom: 5px;
+    display: table;
+    width: 100%;
 }
-
-
+.left-cell {
+    display: table-cell;
+    vertical-align: middle;
+}
+.right-cell {
+    display: table-cell;
+    vertical-align: middle;
+    text-align: right;
+    font-size: 200%;
+    color: #556e8c;
+}
+div.right-cell i{
+  cursor: pointer;
+}
 .date {
 	font-size: 10px;
 	 float: right;
@@ -29,11 +48,9 @@ color:#A4A4A4
 .notification {
 	border-bottom: 1px solid #FFF;
 	padding: 5px;
-	background: #F5F5F5;
-
 }
 
-.no-notifications {
+.no-notifications, .no-things, .no-alerts {
   padding: 5px;
 }
 .notification strong{
@@ -41,16 +58,16 @@ color:#369;
 
 }
 .notification:hover {
-	background: #FFF;
-	cursor: pointer;
+	background: #f3f3f3;
+	cursor: hand;
 }
 
-.notification h4, .no-notifications  h4 {
+.notification h4, .no-notifications  h4, .no-things h4,  .no-alerts h4 {
 	margin: 0px;
-	font-weight: normal;
+	font-weight: bold;
 }
 
-.no-notifications h4 {
+.no-notifications h4, .no-things h4,  .no-alerts h4 {
   text-align: center;
 }
 
@@ -76,17 +93,34 @@ color:#369;
 
 #control i {
   cursor: pointer;
-
 }
 
 
+#header {
+  font-size: 10px;
+}
+
+#header {
+  background-color: #D3D3D3;
+  padding: 5px;
+  line-height: 26px;
+  color: #556e8c;
+}
+
+#header:after {
+  content: " ";
+  clear: both;
+}
+
+#header i {
+  cursor: pointer;
+}
 .group:after {
   content: "";
   display: table;
   clear: both;
 }
-.wrapper {
-  background: #F5F5F5;  
+.wrapper { 
   width: 100%;
 }
 h1 {
@@ -96,7 +130,7 @@ ul.tabs {
   list-style-type: none;
   margin: 0;
   padding: 0;
-  width: 420px;
+  width: 420px; 
 }
 ul.tabs li {  
   border: none;
@@ -105,6 +139,11 @@ ul.tabs li {
   padding: .25em .5em;
   text-align: center;
   width:29%;
+   background: #f3f3f3;
+}
+ul.tabs li:hover {
+  background: #dcdcdc;
+  
 }
 ul.tabs li a {
   color: gray;
@@ -123,4 +162,39 @@ ul.tabs li.active a {
 article {
   border-top: gray solid 1px;
   padding: 0 1em;
+}
+ul.htabs {
+  list-style-type: none;
+  margin: 0;
+  padding: 0;
+  width: 420px; 
+}
+ul.htabs li.left {  
+  border: none;
+  font-size: 20px;
+  float: left;  
+  text-align: left;
+  width:20px;  
+}
+ul.htabs li.right {  
+  border: none;
+  font-size: 20px;
+  float: right;  
+  text-align: right;
+  width:20px;
+  padding-right: 30px;   
+}
+ul.htabs li.center {  
+  border: none;
+  font-size: 15px;  
+  text-align: center;
+  float: left;
+  width:350px; 
+  font-family: 'PT Sans Caption',Verdana,sans-serif; 
+}
+.negative{
+  color: red;
+}
+.positive{
+  color: black;
 }

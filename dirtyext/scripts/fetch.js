@@ -1,14 +1,14 @@
 ﻿T.lang('ru');
 function getNotificationHTML(model) {
-	return 	'<div data-read-url="' + model.url + '" data-id="' + model.id + '" class="notification group">' +
+	return 	'<div  class="box-header"><div data-read-url="' + model.url + '" data-id="' + model.id + '" class="notification group left-cell">' +
 			'<h4>' + model.title + '</h4>' +
 			'<p>' + model.body + '</p>' +			
-			'</div><button type="button" inbox-id="' + model.id + '" class="inbox"><i class="fa fa-check-circle"></i> Отметить как прочитанное</button><hr />';
+			'</div><div class="right-cell"><i inbox-id="' + model.id + '" class="inbox fa fa-check-circle"></i></div></div>';
 }
 function getAlertsHTML(model) {
-    return  '<div alert-read-url="' + model.url + '" class="notification group">' +
+    return  '<div  class="box-header"><div alert-read-url="' + model.url + '" class="notification group left-cell">' +
             '<p>' + model.body + '</p>' +           
-            '</div><button type="button" alert-type="' + model.id + '" alert-id="' + model.markread + '" class="alert fa fa-check-circle"><i class="fa fa-check-circle"></i> Отметить как прочитанное</button><hr />';
+            '</div><div class="right-cell"><i alert-type="' + model.id + '" alert-id="' + model.markread + '" class="alert fa fa-check-circle"></i></div></div>';
 }
 var alertTypes = {"comment_answer":"Ответы",
 "mention":"Упоминания",
@@ -39,7 +39,8 @@ function displayNotifications(notifications) {
     } 
    //var length = notifications.length;    
     if(length == 0) {        
-        notificationsHTML = '<div class="no-notifications"><h5>Здесь пусто, нет ничего вообще.</h5></div>';
+        notificationsHTML = '<div class="no-notifications"><h4>Здесь пусто, нет ничего вообще.</h4></div>';
+        $('.tab1').removeClass( "fa fa-comment" ).addClass( "fa fa-comment-0" );
     } else {        
         for(var i = 0; i < length; i++ ) {            
             var item = notice[i];            
@@ -57,25 +58,34 @@ function displayNotifications(notifications) {
                 notificationsHTML += getNotificationHTML(viewModel);
             
         }
+        $('.tab1').removeClass( "fa fa-comment-o" ).addClass( "fa fa-comment" );
     }
-
+    if (localStorage.getItem('karma') < 0){userKarma = '<span id="karma" class="negative"><b>&nbsp;'+localStorage.getItem('karma')+'&nbsp;</b></span>';}else{
+    userKarma = '<span id="karma" class="positive"><b>&nbsp;'+localStorage.getItem('karma')+'&nbsp;</b></span>';}
 	$("#notifications").html(notificationsHTML);
+    $("#userinfo").html('<i title="Карма" class="fa fa-user"></i>'+userKarma+'<i title="Плюсы" class="fa fa-arrow-up"></i><span id="plus" class="positive">&nbsp;'+localStorage.getItem('upVotes')+'&nbsp;</span><i title="Минусы" class="fa fa-arrow-down"></i><span id="plus" class="negative">&nbsp;'+localStorage.getItem('downVotes')+'&nbsp;</span><i title="Посты" class="fa fa-file-text"></i><span id="plus" class="positive">&nbsp;'+localStorage.getItem('user_posts')+'&nbsp;</span><i title="Комментарии" class="fa fa-comments"></i><span id="plus" class="positive">&nbsp;'+localStorage.getItem('user_comments')+'</span>');
 }
 
 function displayAlerts(alerts) {
     var events = alerts;    
 	var alertsHTML = '';
     var mythingsHTML = '';        
-    if (typeof events === 'undefined' || events == 'null'){
+    if (typeof events === 'undefined' || events === null){
     var length = fetchAlerts();   
     } else {
     var length = events.length;
     }
-    if(length == 0) {        
+    if(length == 0)
+    {        
         alertsHTML = '<div class="no-alerts"><h4>Здесь пусто, нет ничего вообще.</h4></div>';
         mythingsHTML = '<div class="no-alerts"><h4>Здесь пусто, нет ничего вообще.</h4></div>';
-    } else {        
-        for(var i = 0; i < length; i++ ) {            
+        $('.tab3').removeClass( "fa fa-bell" ).addClass( "fa fa-bell-o" );
+        $('.tab2').removeClass( "fa fa-file-text" ).addClass( "fa fa-file-text-o" );
+    } 
+    else 
+    {        
+        for(var i = 0; i < length; i++ ) 
+        {            
             var item = events[i];                       
             var viewModel = {
                 id: '',
@@ -83,7 +93,8 @@ function displayAlerts(alerts) {
                 body: '',
                 url: ''
             };
-            switch(item.type){
+            switch(item.type)
+            {
 
                 case 'ban':
                 viewModel.id = item.type;
@@ -154,7 +165,7 @@ function displayAlerts(alerts) {
                 }
                 viewModel.body = 'Новый пост '+item.data.post.user.login + ' <b>' + item.data.post.title+'</b> ' + metka;
                 viewModel.markread = item._links[0].href;                             
-                alertsHTML += getAlertsHTML(viewModel);
+                alertsHTML += getAlertsHTML(viewModel);                
                 break;
 
                 default:
@@ -163,18 +174,28 @@ function displayAlerts(alerts) {
                 viewModel.body = item.type;
                 viewModel.markread = '';                             
                 alertsHTML += getAlertsHTML(viewModel);
+                break;
             }
                            
         }
-    }   
-   if (alertsHTML == '' || alertsHTML.lenght == 0){$("#myalerts").html('<div class="no-alerts"><h4>Здесь пусто, нет ничего вообще.</h4></div>')}
+    if (alertsHTML == '' || alertsHTML.lenght == 0){
+    $("#myalerts").html('<div class="no-alerts"><h4>Здесь пусто, нет ничего вообще.</h4></div>');
+    $('.tab3').removeClass( "fa fa-bell" ).addClass( "fa fa-bell-o" );
+}
     else {
+   $('.tab3').removeClass( "fa fa-bell-o" ).addClass( "fa fa-bell" );
    $("#myalerts").html(alertsHTML + '<button type="button" alert-type="all" alert-id="https://dirty.ru/api/my/notifications/mark_read/" class="alert"><i class="fa fa-check-circle"></i> Отметить всё как прочитанное</button><hr />');
    }
    if (mythingsHTML.length >0 ){
+   $('.tab2').removeClass( "fa fa-file-text-o" ).addClass( "fa fa-file-text" );
    $("#mythings").html(mythingsHTML);  
-   } else {
-   $("#mythings").html('<div class="no-alerts"><h4>Здесь пусто, нет ничего вообще.</h4></div>')} 
+   }
+    else
+     {
+    $("#mythings").html('<div class="no-alerts"><h4>Здесь пусто, нет ничего вообще.</h4></div>');
+    $('.tab2').removeClass( "fa fa-file-text" ).addClass( "fa fa-file-text-o" );
+    }
+    }   
 }
 
 function updateAndDisplayNotifications(callback) {
@@ -255,8 +276,7 @@ function fetchMyThings(){
 }  
 
 $(document).ready(function() {
-
-	var notifications = localStorage.getItem('inboxcomments');
+    var notifications = localStorage.getItem('inboxcomments');
 	var alerts = fetchAlerts();
 	if(notifications === null) {
 		updateAndDisplayNotifications();
@@ -293,13 +313,20 @@ $(document).ready(function() {
     chrome.notifications.clear(id);
 	});
 
+    $("body").on("click", "[alert-read-url]", null, function(event) {    
+    var notification = $(event.target).closest('.notification');    
+    var url = notification[0].getAttribute('data-read-url') + '#new';
+    var id = notification[0].getAttribute('data-id');    
+    chrome.tabs.create({url: url, active: false});    
+    });
+
 	$("body").on("click", "[inbox-id]", null, function(event) {
         var inbox = $(event.target).closest('.inbox');    
         var inbox_id = inbox[0].getAttribute('inbox-id');
         $('.inbox').addClass('fa-spin');
     setTimeout(function() {
         $('.inbox').removeClass('fa-spin');
-    }, 1000)
+    }, 3000)
         markAsRead(inbox_id);
     });
 
@@ -326,7 +353,7 @@ $(document).ready(function() {
     updateAndDisplayAlerts(function() {
         setTimeout(updateAndDisplayAlerts);
     }); 
-  });  
+  });
 });
 //tabs
 $(function(){
