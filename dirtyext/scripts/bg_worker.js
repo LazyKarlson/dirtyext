@@ -23,9 +23,8 @@ var actions = {
     },
 
     alertsMarkAsRead: function(request, callback) {    
-    chrome.cookies.getAll({url:"http://dirty.ru/"}, function(cookies) { 
-    alertsMarkRead(cookies[0].value, cookies[1].value, request.url, request.type);
-       
+    chrome.cookies.getAll({url:"http://dirty.ru/"}, function(cookies) {    
+    alertsMarkRead(cookies[0].value, cookies[1].value, request.alert, request.alert_type);
         });
     },
 
@@ -86,16 +85,16 @@ req.send();
 }
 
 function alertsMarkRead(u_id, s_id, url, type){
+var alertUrl = url;
 if (type != 'all'){
 localStorage.setItem('count'+type, 0);
 localStorage.removeItem(type);
 } else {
-    Object.keys(alertsCount).forEach(function(k) {
-                localStorage.setItem('count_'+k, 0);
-                localStorage.setItem(k, '[]');               
-            });
-}
-var alertUrl = url;    
+    for (var key in alertTypes) {        
+                localStorage.setItem('count_'+key, 0);
+                localStorage.removeItem(key);               
+            };
+}    
 req.open('POST', alertUrl, true);
 req.setRequestHeader('X-Futuware-UID', u_id);
 req.setRequestHeader('X-Futuware-SID', s_id);
@@ -115,22 +114,22 @@ subs.send();
 function processAlerts(e) {
     if (subs.readyState == 4) {
         var response = JSON.parse(subs.responseText);        
-        localStorage.setItem('totalAlertsCount', response["item_count"]);
         if (response["item_count"] > 0){
-        var alerts = response['notifications'];
+        var alerts = response['notifications'];                      
+        localStorage.setItem('totalAlertsCount', alerts.length);        
         var jsonAlerts = "{";
         for (var key in alertTypes) {
-        var filtered = filterAlerts(alerts, key);
+        var filtered = filterAlerts(alerts, key);      
         if (filtered > 0){ 
         jsonAlerts += '"' + key + '" :' + filtered + ', ';}       
         }               
         jsonAlerts = jsonAlerts.substr(0, jsonAlerts.length-2);
         jsonAlerts += "}";
-        var alertsCount = JSON.parse(jsonAlerts);               
+        var alertsCount = JSON.parse(jsonAlerts);        
         var prepareList = [];
         var new_alert_count = 0;
-        if(typeof alertsCount != "undefined" &&  Object.keys(alertsCount).length > 0 && localStorage.getItem('showDesktopNotifications') === "true") {            
-            Object.keys(alertsCount).forEach(function(k) {
+        if(typeof alertsCount != "undefined" &&  Object.keys(alertsCount).length > 0) {            
+            Object.keys(alertsCount).forEach(function(k) {                
                 new_alert_count = alertsCount[k] - localStorage.getItem('count_'+k);                               
                                     prepareList.push({
                                     title: alertTypes[k],
@@ -139,7 +138,7 @@ function processAlerts(e) {
                   
                  localStorage.setItem('count_'+k, alertsCount[k]);               
             });
-        if(new_alert_count > 1) {               
+        if(new_alert_count > 1 && localStorage.getItem('showDesktopNotifications') === "true") {               
             var desktopNotificationTemplate = {
                 type: 'list',
                 title: "Новые события, %username%!",
@@ -148,7 +147,7 @@ function processAlerts(e) {
                 items: prepareList
             }
             chrome.notifications.create('alerts', desktopNotificationTemplate);
-        } else if (new_alert_count == 1) {
+        } else if (new_alert_count == 1 && localStorage.getItem('showDesktopNotifications') === "true") {
             var desktopNotificationTemplate = {
                 type: 'basic',
                 title: "Новые события, %username%!",
@@ -163,10 +162,14 @@ function processAlerts(e) {
                      
         }
         }
-        drawBadge();
+        else if (response["item_count"] == 0){
+        localStorage.setItem('totalAlertsCount', 0);
+    }
+    drawBadge();
+        
     }
 }
-
+//количество событий по типу
 function filterAlerts(alerts, type){
     var result = alerts.filter(function( obj ) {
         return obj.type == type;
