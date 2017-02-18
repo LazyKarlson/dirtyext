@@ -1,0 +1,66 @@
+body.options {
+	overflow-x: hidden;
+  overflow-y: auto;
+  max-height: 850px;
+	margin: 0;
+	padding: 0;
+	color: #333;
+  font-size: .8em;
+  line-height: 1.5;
+  font-family: 'PT Sans Caption',Verdana,sans-serif;
+  background-color: #F5F5F5;
+  background-image: url("/images/options_bg.jpg");
+  background-repeat: no-repeat;
+    background-attachment: fixed;
+    background-position: center;
+}
+
+#options {
+	width: 550px;
+	margin: 50px auto;
+    background: rgba(255, 255, 255, .5);
+    font-size: 20px;
+}
+
+#options > h2 {
+    
+	text-align: center;
+}
+
+#options .control-label {
+    width: 50%;
+    float: left;
+    text-align: right;
+    line-height: 42px;
+    clear: both;
+}
+#options .control-element {
+    width: 50%;
+    float: left;
+}
+
+#options .control-label, #options .control-element {
+    padding: 5px;
+}
+#options select {
+    padding: 10px;
+    border: none;
+    width: 100%;
+}
+# options label {
+    text-align: right;
+    display: table-cell;
+}
+
+*, *:before, *:after {
+  -moz-box-sizing: border-box; -webkit-box-sizing: border-box; box-sizing: border-box;
+ }
+ 
+ .about-text {
+    clear: both;
+    text-align: center;
+    font-size: 14px;
+    margin-top: 10px;
+    padding: 10px;
+    background: rgba(255, 255, 255, .4);
+ }
