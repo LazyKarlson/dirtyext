@@ -1,14 +1,13 @@
-{
+﻿{
    "background": {
     "page": "background.html",
     "persistent": true
   },
    "permissions": [
-    "alarms",
     "tabs",
     "notifications",
     "cookies",
-    "*://*.dirty.ru/"
+    "*://*.dirty.ru/*"
    ],
    "browser_action": {
       "default_icon": {
@@ -16,16 +15,17 @@
          "38": "images/icongray38.png"
       },
       "default_popup": "popup.html",
-      "default_title": "D3 Notifier"
+      "default_title": "Уведомления dirty.ru"
    },
-   "description": "Get dirty notifications in chrome",
-   "icons": {
+   "description": "Уведомления о новых событиях, комментариях, инбоксах",
+    "icons": {
       "128": "images/128.png",
       "16": "images/16.png",
       "48": "images/48.png"
    },   
    "manifest_version": 2,
    "options_page": "options.html",
-   "name": "Dirty Notifier",   
-   "version": "0.1"
+   "name": "Уведомления dirty.ru",
+   "author": "LazyKarlson",   
+   "version": "0.9"
 }

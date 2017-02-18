@@ -334,6 +334,10 @@ $(document).ready(function() {
         var alert = $(event.target).closest('.alert');    
         var alert_url = alert[0].getAttribute('alert-id');
         var alert_type = alert[0].getAttribute('alert-type');
+        $('.alert').addClass('fa-spin');
+    setTimeout(function() {
+        $('.alert').removeClass('fa-spin');
+    }, 3000)
         alertMarkAsRead(alert_url, alert_type);
     });
 
