@@ -7,7 +7,14 @@
     "tabs",
     "notifications",
     "cookies",
-    "*://*.dirty.ru/*"
+    "*://*.dirty.ru/*",
+    "https://dirty.ru/api/my/",
+    "https://dirty.ru/api/users/",
+    "http://dirty.ru/",
+    "https://dirty.ru/my/inbox/",
+    "https://dirty.ru/api/inbox/",
+    "https://dirty.ru/api/inboxes/unread/",
+    "https://dirty.ru/api/my/notifications/unread/"
    ],
    "browser_action": {
       "default_icon": {
