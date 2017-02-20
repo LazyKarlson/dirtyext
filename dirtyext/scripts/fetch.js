@@ -8,7 +8,7 @@ function getNotificationHTML(model) {
 function getAlertsHTML(model) {
     return  '<div  class="box-header"><div alert-read-url="' + model.url + '" class="notification group left-cell">' +
             '<p>' + model.body + '</p>' +           
-            '</div><div class="right-cell"><i alert-type="' + model.id + '" alert-id="' + model.markread + '" class="alert fa fa-check-circle"></i></div></div>';
+            '</div><div class="right-cell"><i alert-type="' + model.type + '" alert-id="' + model.markread + '" class="alert fa fa-check-circle"></i></div></div>';
 }
 var alertTypes = {"comment_answer":"Ответы",
 "mention":"Упоминания",
@@ -89,15 +89,18 @@ function displayAlerts(alerts) {
             var item = events[i];                       
             var viewModel = {
                 id: '',
+                type: '',
                 title: '',
                 body: '',
                 url: ''
             };
+
             switch(item.type)
             {
 
                 case 'ban':
-                viewModel.id = item.type;
+                viewModel.id = item.id;
+                viewModel.type = item.type;
                 viewModel.url = item.data.domain.url;
                 viewModel.body = 'Так случилось, что вас забанили в сообществе <b>' + item.data.domain.title + '</b>';
                 viewModel.markread = item._links[0].href;                             
@@ -105,7 +108,8 @@ function displayAlerts(alerts) {
                 break;
 
                 case 'unban':
-                viewModel.id = item.type;
+                viewModel.id = item.id;
+                viewModel.type = item.type;
                 viewModel.url = item.data.domain.url;
                 viewModel.body = 'Хорошие новости – вас разбанили в сообществе <b>' + item.data.domain.title + '</b>';
                 viewModel.markread = item._links[0].href;                             
@@ -113,7 +117,8 @@ function displayAlerts(alerts) {
                 break;
 
                 case 'permission_grant':
-                viewModel.id = item.type;
+                viewModel.id = item.id;
+                viewModel.type = item.type;
                 viewModel.url = item.data.domain.url;
                 viewModel.body = 'Вы стали ' + item.data.permission + ' сообщества <b>' + item.data.domain.title + '!</b> Будьте благоразумны и удачи!';
                 viewModel.markread = item._links[0].href;                             
@@ -121,7 +126,8 @@ function displayAlerts(alerts) {
                 break;
 
                 case 'election_nomination_start':
-                viewModel.id = item.type;
+                viewModel.id = item.id;
+                viewModel.type = item.type;
                 viewModel.url = item.data.domain.url;
                 viewModel.body = 'В сообществе <b>' + item.data.domain.title + '</b> начались выборы';
                 viewModel.markread = item._links[0].href;                             
@@ -129,7 +135,8 @@ function displayAlerts(alerts) {
                 break;
 
                 case 'election_voting_start':
-                viewModel.id = item.type;
+                viewModel.id = item.id;
+                viewModel.type = item.type;
                 viewModel.url = item.data.domain.url;
                 viewModel.body = 'В сообществе <b>' + item.data.domain.title + '</b> началось голосование на выборах президента.';
                 viewModel.markread = item._links[0].href;                             
@@ -137,7 +144,8 @@ function displayAlerts(alerts) {
                 break;
 
                 case 'comment_answer':
-                viewModel.id = item.type;
+                viewModel.id = item.id;
+                viewModel.type = item.type;
                 viewModel.url = item.data.comment.domain.url+'/comments/'+item.data.comment.post.id+'/#new';
                 viewModel.body = item.data.comment.user.login +' ответил на  комментарий в посте ' + item.data.comment.post.title +
                 ' ' + item.data.post.rating + '<br />'+item.data.comment.body;
@@ -146,7 +154,8 @@ function displayAlerts(alerts) {
                 break;
 
                 case 'new_comment':
-                viewModel.id = item.type;
+                viewModel.id = item.id;
+                viewModel.type = item.type;
                 viewModel.url = item.data.post._links[1].href;
                 viewModel.body = 'В посте '+ item.data.post.title + ' '  + T('new_comments.added', { comments: item.data.post.unread_comments_count});
                 ' ' + item.data.post.rating;
@@ -155,7 +164,8 @@ function displayAlerts(alerts) {
                 break;
 
                 case 'post_from_subscribed_user':
-                viewModel.id = item.type;
+                viewModel.id = item.id;
+                viewModel.type = item.type;
                 if (item.data.post.created == 0) { 
                     viewModel.url = '';
                     var metka = 'Распубликован';
@@ -164,12 +174,14 @@ function displayAlerts(alerts) {
                     var metka = '';
                 }
                 viewModel.body = 'Новый пост '+item.data.post.user.login + ' <b>' + item.data.post.title+'</b> ' + metka;
-                viewModel.markread = item._links[0].href;                             
+                viewModel.markread = item._links[0].href;
+                console.log(viewModel);                             
                 alertsHTML += getAlertsHTML(viewModel);                
                 break;
 
                 default:
-                viewModel.id = item.type;
+                viewModel.id = item.id;
+                viewModel.type = item.type;
                 viewModel.url = '';
                 viewModel.body = item.type;
                 viewModel.markread = '';                             
