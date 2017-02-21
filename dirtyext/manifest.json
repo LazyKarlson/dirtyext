@@ -33,6 +33,7 @@
    "manifest_version": 2,
    "options_page": "options.html",
    "name": "Уведомления dirty.ru",
+   "short_name": "События d3.ru",
    "author": "LazyKarlson",   
-   "version": "0.9"
+   "version": "0.9.4"
 }

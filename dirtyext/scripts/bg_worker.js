@@ -8,41 +8,58 @@ var req = new XMLHttpRequest();
 var subs = new XMLHttpRequest();
 var alertsCount;
 T.lang('ru');
-
 var actions = {
-    getUser: function(request, callback) {
-    chrome.cookies.getAll({url:"http://dirty.ru/"}, function(cookies) { 
-    getUserData(cookies[0].value, cookies[1].value);    
-        });
+    getUser: function(request) {
+    chrome.cookies.get({url: "http://dirty.ru/", name: 'uid'}, function(cookie) {   
+    uid = cookie.value;
+    chrome.cookies.get({url: "http://dirty.ru/", name: 'sid'}, function(cookie) {   
+    sid = cookie.value; 
+    getUserData(uid, sid)});    
+});
     },
 
-	updateInboxComments: function(request, callback) {
-	chrome.cookies.getAll({url:"http://dirty.ru/"}, function(cookies) {	
-	getInboxes(cookies[0].value, cookies[1].value);	   
-  		});
-	},
+    updateInboxComments: function(request, callback) {
+    chrome.cookies.get({url: "http://dirty.ru/", name: 'uid'}, function(cookie) {   
+    uid = cookie.value;
+    chrome.cookies.get({url: "http://dirty.ru/", name: 'sid'}, function(cookie) {   
+    sid = cookie.value;         
+    getInboxes(uid, sid);      
+        });    
+});
 
-    markAsRead: function(request, callback) {    
-    chrome.cookies.getAll({url:"http://dirty.ru/"}, function(cookies) { 
-    markRead(cookies[0].value, cookies[1].value, request.inbox);
-       
-        });
     },
 
-    alertsMarkAsRead: function(request, callback) {    
-    chrome.cookies.getAll({url:"http://dirty.ru/"}, function(cookies) {    
-    alertsMarkRead(cookies[0].value, cookies[1].value, request.alert, request.alert_type);
-        });
+    markAsRead: function(request) {
+    chrome.cookies.get({url: "http://dirty.ru/", name: 'uid'}, function(cookie) {   
+    uid = cookie.value;
+    chrome.cookies.get({url: "http://dirty.ru/", name: 'sid'}, function(cookie) {   
+    sid = cookie.value;    
+    markRead(uid, sid, request.inbox);      
+        });    
+}); 
     },
 
-    getAlerts: function(request, callback) {    
-    chrome.cookies.getAll({url:"http://dirty.ru/"}, function(cookies) { 
-    getMyAlerts(cookies[0].value, cookies[1].value);
-       
-        });
+    alertsMarkAsRead: function(request) {
+    chrome.cookies.get({url: "http://dirty.ru/", name: 'uid'}, function(cookie) {   
+    uid = cookie.value;
+    chrome.cookies.get({url: "http://dirty.ru/", name: 'sid'}, function(cookie) {   
+    sid = cookie.value;    
+    alertsMarkRead(uid, sid, request.alert, request.alert_type);      
+        });    
+});         
     },
 
-	initNotificationsInterval: function() {        
+    getAlerts: function(request) {
+    chrome.cookies.get({url: "http://dirty.ru/", name: 'uid'}, function(cookie) {   
+    uid = cookie.value;
+    chrome.cookies.get({url: "http://dirty.ru/", name: 'sid'}, function(cookie) {   
+    sid = cookie.value;    
+    getMyAlerts(uid, sid);      
+        });    
+});
+    },
+
+    initNotificationsInterval: function() {        
         var refreshInterval = localStorage.getItem('refreshInterval');
 
         if(refreshInterval === null) {
@@ -73,7 +90,7 @@ var alertTypes = {"comment_answer":"Ответы",
 "comment_answer":"Ответы на комментарии",
 "post_from_subscribed_user":"Новый пост"};
 
-function getInboxes(u_id, s_id){
+function getInboxes(u_id, s_id){    
 xhr.open('GET', "https://dirty.ru/api/inboxes/unread/", true);
 xhr.setRequestHeader('X-Futuware-UID', u_id);
 xhr.setRequestHeader('X-Futuware-SID', s_id);
@@ -102,8 +119,8 @@ usr.send();
 function countUserPosts(u_id, s_id){
     var href = "https://dirty.ru/api/users/" + localStorage.getItem('login') + "/posts/";
     usr.open('GET', href, true);
-    usr.setRequestHeader('X-Futuware-UID', u_id);
-    usr.setRequestHeader('X-Futuware-SID', s_id);            
+    //usr.setRequestHeader('X-Futuware-UID', u_id);
+    //usr.setRequestHeader('X-Futuware-SID', s_id);            
     usr.onreadystatechange = function()
     {
         if (usr.readyState == 4 && usr.status == 200)
@@ -119,8 +136,8 @@ function countUserPosts(u_id, s_id){
 function countUserComments(u_id, s_id){
     var href = "https://dirty.ru/api/users/" + localStorage.getItem('login') + "/comments/";
     usr.open('GET', href, true);
-    usr.setRequestHeader('X-Futuware-UID', u_id);
-    usr.setRequestHeader('X-Futuware-SID', s_id);
+    //usr.setRequestHeader('X-Futuware-UID', u_id);
+    //usr.setRequestHeader('X-Futuware-SID', s_id);
     usr.onreadystatechange = function()
     {
         if (usr.readyState == 4 && usr.status == 200)
@@ -141,8 +158,8 @@ function countUserKarma(u_id, s_id, i){
 function countVotes(u_id, s_id, i){    
     var href = "https://dirty.ru/api/users/" + localStorage.getItem('login') + "/votes/?page="+i;
     usr.open('GET', href, true);
-    usr.setRequestHeader('X-Futuware-UID', u_id);
-    usr.setRequestHeader('X-Futuware-SID', s_id);
+    //usr.setRequestHeader('X-Futuware-UID', u_id);
+    //usr.setRequestHeader('X-Futuware-SID', s_id);
     usr.onreadystatechange = function()
     {
         if (usr.readyState == 4 && usr.status == 200)
@@ -288,20 +305,25 @@ function filterAlerts(alerts, type){
 
 function processInboxes(e) {
     if (xhr.readyState == 4) {
-    	var response = JSON.parse(xhr.responseText);    	
+    	var response = JSON.parse(xhr.responseText);
+        if(response.item_count == 0) {
+        localStorage.setItem('inboxcomments', '[]');
+    } else if(response.item_count > 0){    	
     	localStorage.setItem('inboxcomments', JSON.stringify(response.inboxes));
     	localStorage.setItem('lastUpdate', moment().format('X'));
     	var inboxes = response['inboxes'];
-        //удаляем пустые
-        if (inboxes.length == 0){
-                Object.keys(localStorage)
-                .forEach(function(key){
-                     if (key.substring(0,5) == 'inbox') {                       
-                localStorage.removeItem(key); 
-            }
-       });
-            };
-        //считаем количество новых с последнего обновления и показываем    
+
+       //удаляем пустые
+       //  if (inboxes.length == 0){
+       //          Object.keys(localStorage)
+       //          .forEach(function(key){
+       //               if (key.substring(0,5) == 'inbox') {                       
+       //          localStorage.removeItem(key); 
+       //      }
+       // });
+       //     };
+       //считаем количество новых с последнего обновления и показываем
+
 	    if(typeof inboxes != "undefined" &&  inboxes.length > 0) {
 	    	var iCount = inboxes.length;            
 	    	var mCount = 0;	    	   	
@@ -316,7 +338,7 @@ function processInboxes(e) {
 	       if (new_comment_count < 0) {new_comment_count = inboxes[i].unread_comments_count;}
 	       localStorage.setItem('inbox'+inboxes[i].id, inboxes[i].unread_comments_count);
 	   			}
-	     if (localStorage.getItem('showDesktopNotifications') === "true" && new_comment_count > 0) {
+	    if (localStorage.getItem('showDesktopNotifications') === "true" && new_comment_count > 0) {
             var desktopNotificationTemplate = {
                 type: 'basic',
                 title: T('new_comments.uploaded', { comments: new_comment_count}),
@@ -345,7 +367,8 @@ function processInboxes(e) {
 	        lastInboxCommentsCount = 0;        
 	    }
         drawBadge();
-	}	
+	}
+    }	
 }
 
 function drawBadge(){

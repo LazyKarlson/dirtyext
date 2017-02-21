@@ -102,7 +102,7 @@ function displayAlerts(alerts) {
                 viewModel.id = item.id;
                 viewModel.type = item.type;
                 viewModel.url = item.data.domain.url;
-                viewModel.body = 'Так случилось, что вас забанили в сообществе <b>' + item.data.domain.title + '</b>';
+                viewModel.body = 'Так случилось, что вас забанили в сообществе <b>"' + item.data.domain.title + '"</b>';
                 viewModel.markread = item._links[0].href;                             
                 alertsHTML += getAlertsHTML(viewModel);
                 break;
@@ -111,7 +111,7 @@ function displayAlerts(alerts) {
                 viewModel.id = item.id;
                 viewModel.type = item.type;
                 viewModel.url = item.data.domain.url;
-                viewModel.body = 'Хорошие новости – вас разбанили в сообществе <b>' + item.data.domain.title + '</b>';
+                viewModel.body = 'Хорошие новости – вас разбанили в сообществе <b>"' + item.data.domain.title + '"</b>';
                 viewModel.markread = item._links[0].href;                             
                 alertsHTML += getAlertsHTML(viewModel);
                 break;
@@ -120,7 +120,7 @@ function displayAlerts(alerts) {
                 viewModel.id = item.id;
                 viewModel.type = item.type;
                 viewModel.url = item.data.domain.url;
-                viewModel.body = 'Вы стали ' + item.data.permission + ' сообщества <b>' + item.data.domain.title + '!</b> Будьте благоразумны и удачи!';
+                viewModel.body = 'Вы стали "' + item.data.permission + '"" сообщества <b>' + item.data.domain.title + '!</b> Будьте благоразумны и удачи!';
                 viewModel.markread = item._links[0].href;                             
                 alertsHTML += getAlertsHTML(viewModel);
                 break;
@@ -129,7 +129,7 @@ function displayAlerts(alerts) {
                 viewModel.id = item.id;
                 viewModel.type = item.type;
                 viewModel.url = item.data.domain.url;
-                viewModel.body = 'В сообществе <b>' + item.data.domain.title + '</b> начались выборы';
+                viewModel.body = 'В сообществе <b>"' + item.data.domain.title + '"</b> начались выборы';
                 viewModel.markread = item._links[0].href;                             
                 alertsHTML += getAlertsHTML(viewModel);
                 break;
@@ -138,7 +138,7 @@ function displayAlerts(alerts) {
                 viewModel.id = item.id;
                 viewModel.type = item.type;
                 viewModel.url = item.data.domain.url;
-                viewModel.body = 'В сообществе <b>' + item.data.domain.title + '</b> началось голосование на выборах президента.';
+                viewModel.body = 'В сообществе <b>"' + item.data.domain.title + '"</b> началось голосование на выборах президента.';
                 viewModel.markread = item._links[0].href;                             
                 alertsHTML += getAlertsHTML(viewModel);
                 break;
@@ -147,8 +147,8 @@ function displayAlerts(alerts) {
                 viewModel.id = item.id;
                 viewModel.type = item.type;
                 viewModel.url = item.data.comment.domain.url+'/comments/'+item.data.comment.post.id+'/#new';
-                viewModel.body = item.data.comment.user.login +' ответил на  комментарий в посте ' + item.data.comment.post.title +
-                ' ' + item.data.post.rating + '<br />'+item.data.comment.body;
+                viewModel.body = item.data.comment.user.login +' ответил на  комментарий в посте "' + item.data.comment.post.title +
+                '" ' + item.data.post.rating + '<br />"'+item.data.comment.body+'"';
                 viewModel.markread = item._links[0].href;                             
                 alertsHTML += getAlertsHTML(viewModel);
                 break;
@@ -157,7 +157,7 @@ function displayAlerts(alerts) {
                 viewModel.id = item.id;
                 viewModel.type = item.type;
                 viewModel.url = item.data.post._links[1].href;
-                viewModel.body = 'В посте '+ item.data.post.title + ' '  + T('new_comments.added', { comments: item.data.post.unread_comments_count});
+                viewModel.body = 'В посте "'+ item.data.post.title + '" '  + T('new_comments.added', { comments: item.data.post.unread_comments_count});
                 ' ' + item.data.post.rating;
                 viewModel.markread = item._links[0].href;                             
                 mythingsHTML += getAlertsHTML(viewModel);
@@ -173,7 +173,7 @@ function displayAlerts(alerts) {
                     viewModel.url = item.data.post._links[1].href;
                     var metka = '';
                 }
-                viewModel.body = 'Новый пост '+item.data.post.user.login + ' <b>' + item.data.post.title+'</b> ' + metka;
+                viewModel.body = 'Новый пост "'+item.data.post.user.login + '" <b>' + item.data.post.title+'</b> ' + metka;
                 viewModel.markread = item._links[0].href;
                 console.log(viewModel);                             
                 alertsHTML += getAlertsHTML(viewModel);                
@@ -255,7 +255,7 @@ function fetchAlerts(){
 		var jsonAlerts = [];        
         for (var key in alertTypes) {
         	//if (localStorage.getItem('count_'+key) != 0 && key != "new_comment"){
-            if (localStorage.getItem('count_'+key) === null){
+            if (!localStorage.getItem('count_'+key)){
                 jsonAlerts = [];
             }    
             else if (localStorage.getItem('count_'+key) != 0){
@@ -289,17 +289,18 @@ function fetchMyThings(){
 
 $(document).ready(function() {
     var notifications = localStorage.getItem('inboxcomments');
-	var alerts = fetchAlerts();
-	if(notifications === null) {
+    var alerts = fetchAlerts();    	
+	if(!notifications) {
 		updateAndDisplayNotifications();
 	} else {
 		notifications = JSON.parse(notifications);
 		displayNotifications(notifications);
 	}
-	if(alerts != 0) {
-		displayAlerts(alerts);
-	} else {
+	//if(alerts == 0) {
+    if(!alerts) {    
 		updateAndDisplayAlerts();
+	} else {
+		displayAlerts(alerts);
 	}
 
 	$("body").on("click", "[data-read-url]", null, function(event) {
