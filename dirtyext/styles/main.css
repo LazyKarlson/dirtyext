@@ -45,7 +45,7 @@ div.right-cell i{
 color:#A4A4A4
 }
 
-.notification {
+.notification .mythings .myalerts {
 	border-bottom: 1px solid #FFF;
 	padding: 5px;
 }
@@ -53,16 +53,16 @@ color:#A4A4A4
 .no-notifications, .no-things, .no-alerts {
   padding: 5px;
 }
-.notification strong{
+.notification strong .mythings strong .myalerts strong{
 color:#369;
 
 }
-.notification:hover {
+.notification:hover, .mythings:hover, .myalerts:hover {
 	background: #f3f3f3;
 	cursor: hand;
 }
 
-.notification h4, .no-notifications  h4, .no-things h4,  .no-alerts h4 {
+.notification h4, .no-notifications  h4, .no-things h4,  .no-alerts h4 .mythings h4 .myalerts h4 {
 	margin: 0px;
 	font-weight: bold;
 }

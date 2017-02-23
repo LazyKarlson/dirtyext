@@ -5,12 +5,19 @@ function getNotificationHTML(model) {
 			'<p>' + model.body + '</p>' +			
 			'</div><div class="right-cell"><i inbox-id="' + model.id + '" class="inbox fa fa-check-circle"></i></div></div>';
 }
-function getAlertsHTML(model) {
-    return  '<div  class="box-header"><div alert-read-url="' + model.url + '" class="notification group left-cell">' +
+
+function getMyThingsHTML(model) {
+    return  '<div  class="box-header"><div mything-read-url="' + model.url + '" class="mythings group left-cell">' +
             '<p>' + model.body + '</p>' +           
-            '</div><div class="right-cell"><i alert-type="' + model.type + '" alert-id="' + model.markread + '" class="alert fa fa-check-circle"></i></div></div>';
+            '</div><div class="right-cell"><i id="' + model.id + '" alert-type="' + model.type + '" mything-id="' + model.markread + '" class="mything fa fa-check-circle"></i></div></div>';
 }
-var alertTypes = {"comment_answer":"Ответы",
+
+function getAlertsHTML(model) {
+    return  '<div  class="box-header"><div alert-read-url="' + model.url + '" class="myalerts group left-cell">' +
+            '<p>' + model.body + '</p>' +           
+            '</div><div class="right-cell"><i id="' + model.id + '" alert-type="' + model.type + '" alert-id="' + model.markread + '" class="alert fa fa-check-circle"></i></div></div>';
+}
+var alertTypes = {
 "mention":"Упоминания",
 "new_comment":"Новые комментарии",
 "post_became_gold":"Золотой пост",
@@ -21,7 +28,7 @@ var alertTypes = {"comment_answer":"Ответы",
 "president_elected":"Выборы закончились",
 "election_voting_start":"Голосование началось",
 "election_nomination_start":"Выдвижение началось",
-"comment_answer":"Ответы на комментарии",
+"mycomments_answer":"Ответы на комментарии",
 "post_from_subscribed_user":"Новый пост"};
  
 function displayNotifications(notifications) {
@@ -60,10 +67,14 @@ function displayNotifications(notifications) {
         }
         $('.tab1').removeClass( "fa fa-comment-o" ).addClass( "fa fa-comment" );
     }
-    if (localStorage.getItem('karma') < 0){userKarma = '<span id="karma" class="negative"><b>&nbsp;'+localStorage.getItem('karma')+'&nbsp;</b></span>';}else{
+    $("#notifications").html(notificationsHTML);
+    if (parseInt(localStorage.getItem('karma')) < 0){userKarma = '<span id="karma" class="negative"><b>&nbsp;'+localStorage.getItem('karma')+'&nbsp;</b></span>';}else{
     userKarma = '<span id="karma" class="positive"><b>&nbsp;'+localStorage.getItem('karma')+'&nbsp;</b></span>';}
-	$("#notifications").html(notificationsHTML);
+    
     $("#userinfo").html('<i title="Карма" class="fa fa-user"></i>'+userKarma+'<i title="Плюсы" class="fa fa-arrow-up"></i><span id="plus" class="positive">&nbsp;'+localStorage.getItem('upVotes')+'&nbsp;</span><i title="Минусы" class="fa fa-arrow-down"></i><span id="plus" class="negative">&nbsp;'+localStorage.getItem('downVotes')+'&nbsp;</span><i title="Посты" class="fa fa-file-text"></i><span id="plus" class="positive">&nbsp;'+localStorage.getItem('user_posts')+'&nbsp;</span><i title="Комментарии" class="fa fa-comments"></i><span id="plus" class="positive">&nbsp;'+localStorage.getItem('user_comments')+'</span>');
+}
+
+function displayUserInfo(){    
 }
 
 function displayAlerts(alerts) {
@@ -143,12 +154,13 @@ function displayAlerts(alerts) {
                 alertsHTML += getAlertsHTML(viewModel);
                 break;
 
-                case 'comment_answer':
+                case 'mycomments_answer':
+                var strippedCommend = item.data.comment.body.replace(/<(?:.|\n)*?>/gm, '');
                 viewModel.id = item.id;
                 viewModel.type = item.type;
                 viewModel.url = item.data.comment.domain.url+'/comments/'+item.data.comment.post.id+'/#new';
                 viewModel.body = item.data.comment.user.login +' ответил на  комментарий в посте "' + item.data.comment.post.title +
-                '" ' + item.data.post.rating + '<br />"'+item.data.comment.body+'"';
+                '" ' + item.data.post.rating + '<br />"'+strippedCommend+'"';
                 viewModel.markread = item._links[0].href;                             
                 alertsHTML += getAlertsHTML(viewModel);
                 break;
@@ -160,7 +172,7 @@ function displayAlerts(alerts) {
                 viewModel.body = 'В посте "'+ item.data.post.title + '" '  + T('new_comments.added', { comments: item.data.post.unread_comments_count});
                 ' ' + item.data.post.rating;
                 viewModel.markread = item._links[0].href;                             
-                mythingsHTML += getAlertsHTML(viewModel);
+                mythingsHTML += getMyThingsHTML(viewModel);
                 break;
 
                 case 'post_from_subscribed_user':
@@ -173,9 +185,8 @@ function displayAlerts(alerts) {
                     viewModel.url = item.data.post._links[1].href;
                     var metka = '';
                 }
-                viewModel.body = 'Новый пост "'+item.data.post.user.login + '" <b>' + item.data.post.title+'</b> ' + metka;
-                viewModel.markread = item._links[0].href;
-                console.log(viewModel);                             
+                viewModel.body = 'Новый пост '+item.data.post.user.login + ' <b>"' + item.data.post.title+'"</b> ' + metka;
+                viewModel.markread = item._links[0].href;                                     
                 alertsHTML += getAlertsHTML(viewModel);                
                 break;
 
@@ -196,7 +207,7 @@ function displayAlerts(alerts) {
 }
     else {
    $('.tab3').removeClass( "fa fa-bell-o" ).addClass( "fa fa-bell" );
-   $("#myalerts").html(alertsHTML + '<button type="button" alert-type="all" alert-id="https://dirty.ru/api/my/notifications/mark_read/" class="alert"><i class="fa fa-check-circle"></i> Отметить всё как прочитанное</button><hr />');
+   $("#myalerts").html(alertsHTML + '<button type="button" alert-type="all" alert-id="https://dirty.ru/api/my/notifications/mark_read/"><i class="alert fa fa-check-circle"></i> Отметить всё как прочитанное</button><hr />');
    }
    if (mythingsHTML.length >0 ){
    $('.tab2').removeClass( "fa fa-file-text-o" ).addClass( "fa fa-file-text" );
@@ -213,6 +224,13 @@ function displayAlerts(alerts) {
 function updateAndDisplayNotifications(callback) {
     chrome.runtime.sendMessage({action : 'updateInboxComments'}, function(response) {
 		displayNotifications(response);
+        if(callback) callback(response);
+    });
+}
+
+function updateAndDisplayUserInfo(callback) {
+    chrome.runtime.sendMessage({action : 'getUser'}, function(response) {
+        displayUserInfo();
         if(callback) callback(response);
     });
 }
@@ -258,7 +276,7 @@ function fetchAlerts(){
             if (!localStorage.getItem('count_'+key)){
                 jsonAlerts = [];
             }    
-            else if (localStorage.getItem('count_'+key) != 0){
+            else if (localStorage.getItem('count_'+key) != '0'){
         		jsonAlerts += localStorage.getItem(key);
         	}            
         }       
@@ -275,7 +293,7 @@ function fetchAlerts(){
 function fetchMyThings(){        
         var jsonMyThings = [];
         for (var key in alertTypes) {
-            if (localStorage.getItem('count_'+key) != 0 && key == "new_comment"){
+            if (localStorage.getItem('count_'+key) != '0' && key == "new_comment"){
                 jsonMyThings += localStorage.getItem(key);
             }           
         }       
@@ -288,7 +306,18 @@ function fetchMyThings(){
 }  
 
 $(document).ready(function() {
+    /*var jsonNotes = "{";
+    Object.keys(localStorage).forEach(function(key){                      
+             if (key.substring(0,7) == 'comment') {                       
+      jsonNotes += '"' + key + '" :' + localStorage.getItem(key) + ', ';                 
+             }
+             });
+        jsonNotes = jsonNotes.substr(0, jsonNotes.length-2);
+        jsonNotes += "}";       
+    var notesCount = JSON.parse(jsonNotes);        
+    console.log(notesCount);*/
     var notifications = localStorage.getItem('inboxcomments');
+    //var notifications = notesCount;
     var alerts = fetchAlerts();    	
 	if(!notifications) {
 		updateAndDisplayNotifications();
@@ -302,12 +331,14 @@ $(document).ready(function() {
 	} else {
 		displayAlerts(alerts);
 	}
+    updateAndDisplayUserInfo();
+    //displayUserInfo(); 
 
 	$("body").on("click", "[data-read-url]", null, function(event) {
 	
 	var notifications = JSON.parse(localStorage.getItem('inboxcomments'));
 	
-    var notification = $(event.target).closest('.notification');    
+    var notification = $(event.target).closest('.notification');        
 	var url = notification[0].getAttribute('data-read-url') + '#new';
     var id = notification[0].getAttribute('data-id');	
 	var foundNotification = false;
@@ -327,8 +358,15 @@ $(document).ready(function() {
 	});
 
     $("body").on("click", "[alert-read-url]", null, function(event) {    
-    var notification = $(event.target).closest('.notification');    
-    var url = notification[0].getAttribute('data-read-url') + '#new';
+    var notification = $(event.target).closest('.myalerts');        
+    var url = notification[0].getAttribute('alert-read-url') + '#new';
+    var id = notification[0].getAttribute('data-id');    
+    chrome.tabs.create({url: url, active: false});    
+    });
+
+    $("body").on("click", "[mything-read-url]", null, function(event) {    
+    var notification = $(event.target).closest('.mythings');     
+    var url = notification[0].getAttribute('mything-read-url') + '#new';
     var id = notification[0].getAttribute('data-id');    
     chrome.tabs.create({url: url, active: false});    
     });
@@ -347,9 +385,26 @@ $(document).ready(function() {
         var alert = $(event.target).closest('.alert');    
         var alert_url = alert[0].getAttribute('alert-id');
         var alert_type = alert[0].getAttribute('alert-type');
-        $('.alert').addClass('fa-spin');
+        var alert_id = "'#" + alert[0].getAttribute('id');
+        //$('.alert').addClass('fa-spin');
+        $(alert_id).addClass('fa-spin');
     setTimeout(function() {
-        $('.alert').removeClass('fa-spin');
+        //$('.alert').removeClass('fa-spin');
+        $(alert_id).removeClass('fa-spin');
+    }, 3000)
+        alertMarkAsRead(alert_url, alert_type);
+    });
+
+    $("body").on("click", "[mything-id]", null, function(event) {
+        var alert = $(event.target).closest('.mything'); 
+        var alert_url = alert[0].getAttribute('mything-id');
+        var alert_type = alert[0].getAttribute('alert-type');
+        var alert_id = "'#" + alert[0].getAttribute('id');
+        //$('.mything').addClass('fa-spin');
+        $(alert_id).addClass('fa-spin');
+    setTimeout(function() {
+       // $('.mything').removeClass('fa-spin');
+       $(alert_id).removeClass('fa-spin');
     }, 3000)
         alertMarkAsRead(alert_url, alert_type);
     });
@@ -369,7 +424,11 @@ $(document).ready(function() {
     });    
     updateAndDisplayAlerts(function() {
         setTimeout(updateAndDisplayAlerts);
-    }); 
+    });
+    /*updateAndDisplayUserInfo (function() {
+        setTimeout(updateAndDisplayUserInfo);
+    });*/
+    
   });
 });
 //tabs
